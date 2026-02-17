@@ -108,7 +108,7 @@ export class AuthService {
     };
   }
 
-  async getUserById(userId: number, session?: any) {
+  async getUserById(userId: string, session?: any) {
     const user = await this.repository.getUserById(userId);
     if (!user) {
       const error = new Error("User not found");
@@ -132,13 +132,13 @@ export class AuthService {
     return users;
   }
 
-  async getSingleUser(id: number, session?: any) {
+  async getSingleUser(id: string, session?: any) {
     const user = await this.repository.getUserById(id);
     if (!user) throw new NotFoundError("User not found");
     return user;
   }
 
-  async getDeleteUser(userId: number) {
+  async getDeleteUser(userId: string) {
     const user = await this.repository.getUserById(userId);
     if (!user) throw new NotFoundError("User not found");
 

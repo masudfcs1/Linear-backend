@@ -40,11 +40,11 @@ export class AuthRepository {
     return await this.prisma.user.findMany();
   }
 
-  async getUserById(id: number) {
+  async getUserById(id: string) {
     return await this.prisma.user.findUnique({ where: { id } });
   }
 
-  async updateUserPassword(userId: number, password: string) {
+  async updateUserPassword(userId: string, password: string) {
     return await this.prisma.user.update({
       where: { id: userId },
       data: { password },

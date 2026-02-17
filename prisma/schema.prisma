@@ -16,79 +16,109 @@ datasource db {
 }
 
 model User {
-  id                Int             @id @default(autoincrement())
-  email             String          @unique
-  phone             String?         @unique
-  password          String
-  name              String?
-  isVerified        Boolean         @default(false)
+  id         String    @id @default(uuid())
+  email      String    @unique
+  phone      String?   @unique
+  password   String
+  name       String?
+  isVerified Boolean   @default(false)
+  addressId  Int?
+  address    String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
-  // roleId            Int?
-  // role              Role?           @relation(fields: [roleId], references: [id])
-  addressId         Int?
-  address           String?        
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
+  // CHANGED: Int? -> String? to match Workspace.id
+  workspaceId String?
+  workspace   Workspace? @relation(fields: [workspaceId], references: [id])
+  
+  assignedIssues Issue[]    @relation("IssueAssignees") 
+  createdIssues  Issue[]    @relation("CreatedIssues")
+  comments       Comment[]
 }
 
-// model Role {
-//   id           Int         @id @default(autoincrement())
-//   role         String      @unique
-//   permissionId Int?
-//   permission   Permission? @relation(fields: [permissionId], references: [id])
-//   users        User[]
+model Workspace {
+  id       String    @id @default(uuid())
+  name     String
+  slug     String    @unique
+  users    User[]
+  projects Project[]
+  issues   Issue[]
+  labels   Label[]
+}
 
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
+model Project {
+  id          String    @id @default(uuid())
+  name        String
+  // CHANGED: Int -> String to match Workspace.id
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  issues      Issue[]
+}
 
-//   // @@map("roles")
-// }
+model Issue {
+  id          String    @id @default(uuid())
+  identifier  String    @unique 
+  title       String
+  description String?   @db.Text
+  status      String    @default("Todo") 
+  priority    Int       @default(0)
+  estimate    Int?
+  dueDate     DateTime?
+  gitBranch   String?
 
-// model Permission {
-//   id            Int   @id @default(autoincrement())
+  // Hierarchy: Sub-tasks
+  // CHANGED: Int? -> String? to match Issue.id
+  parentId    String?
+  parent      Issue?    @relation("SubTasks", fields: [parentId], references: [id])
+  children    Issue[]   @relation("SubTasks")
 
-//   // aboutUs permissions
-//   aboutUsAccess  Boolean @default(false)
-//   aboutUsCreate  Boolean @default(false)
-//   aboutUsUpdate  Boolean @default(false)
-//   aboutUsDelete  Boolean @default(false)
+  // Relationships: Blocking/Blocked By
+  blockedBy   Issue[]   @relation("IssueRelations")
+  blocking    Issue[]   @relation("IssueRelations")
 
-//   // banner permissions
-//   bannerAccess   Boolean @default(false)
-//   bannerCreate   Boolean @default(false)
-//   bannerUpdate   Boolean @default(false)
-//   bannerDelete   Boolean @default(false)
+  // Core Relations
+  // CHANGED: Int -> String to match Workspace.id
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  
+  // CHANGED: Int? -> String? to match Project.id
+  projectId   String?
+  project     Project?  @relation(fields: [projectId], references: [id])
+  
+  assignees   User[]    @relation("IssueAssignees")
+  
+  // CHANGED: Int -> String to match User.id
+  creatorId   String
+  creator     User      @relation("CreatedIssues", fields: [creatorId], references: [id])
+  
+  labels      Label[]
+  comments    Comment[]
 
-//   // category permissions
-//   categoryAccess Boolean @default(false)
-//   categoryCreate Boolean @default(false)
-//   categoryUpdate Boolean @default(false)
-//   categoryDelete Boolean @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
 
-//   // subCategory permissions
-//   subCategoryAccess Boolean @default(false)
-//   subCategoryCreate Boolean @default(false)
-//   subCategoryUpdate Boolean @default(false)
-//   subCategoryDelete Boolean @default(false)
+model Label {
+   id          String    @id @default(uuid())
+  name         String
+  color        String
+  // CHANGED: Int -> String to match Workspace.id
+  workspaceId  String
+  workspace    Workspace @relation(fields: [workspaceId], references: [id])
+  issues       Issue[]
+}
 
-//   // chilsCategory permissions (kept existing name)
-//   chilsCategoryAccess Boolean @default(false)
-//   chilsCategoryCreate Boolean @default(false)
-//   chilsCategoryUpdate Boolean @default(false)
-//   chilsCategoryDelete Boolean @default(false)
-
-//   // order permissions
-//   orderAccess    Boolean @default(false)
-//   orderCreate    Boolean @default(false)
-//   orderUpdate    Boolean @default(false)
-//   orderDelete    Boolean @default(false)
-
-//   // user permissions
-//   userAccess     Boolean @default(false)
-//   userCreate     Boolean @default(false)
-//   userUpdate     Boolean @default(false)
-//   userDelete     Boolean @default(false)
-
-//   roles Role[]
-// }
-
+model Comment {
+  id        String   @id @default(uuid())
+  body      String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // CHANGED: Int -> String to match Issue.id
+  issueId   String
+  issue     Issue    @relation(fields: [issueId], references: [id])
+  
+  // CHANGED: Int -> String to match User.id
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+}

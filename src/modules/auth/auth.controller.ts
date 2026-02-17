@@ -199,7 +199,7 @@ export const getSingleUser = async (
   next: NextFunction,
 ) => {
   try {
-    const userId = Number(req.params.id);
+    const userId = String(req.params.id);
     const user = await authService.getSingleUser(userId);
     res.status(200).json({ message: "User get successfully", user });
   } catch (error) {
@@ -213,7 +213,7 @@ export const getDeleteUser = async (
   next: NextFunction,
 ) => {
   try {
-    const userId = Number(req.params.id);
+    const userId = String(req.params.id);
     const user = await authService.getDeleteUser(userId);
     res.status(200).json({ message: "User deleted successfully", user });
   } catch (error) {

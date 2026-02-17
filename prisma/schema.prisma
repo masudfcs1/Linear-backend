@@ -1,0 +1,94 @@
+// User role enum
+enum UserRole {
+  customer
+  user
+  admin
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                Int             @id @default(autoincrement())
+  email             String          @unique
+  phone             String?         @unique
+  password          String
+  name              String?
+  isVerified        Boolean         @default(false)
+
+  // roleId            Int?
+  // role              Role?           @relation(fields: [roleId], references: [id])
+  addressId         Int?
+  address           String?        
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}
+
+// model Role {
+//   id           Int         @id @default(autoincrement())
+//   role         String      @unique
+//   permissionId Int?
+//   permission   Permission? @relation(fields: [permissionId], references: [id])
+//   users        User[]
+
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+
+//   // @@map("roles")
+// }
+
+// model Permission {
+//   id            Int   @id @default(autoincrement())
+
+//   // aboutUs permissions
+//   aboutUsAccess  Boolean @default(false)
+//   aboutUsCreate  Boolean @default(false)
+//   aboutUsUpdate  Boolean @default(false)
+//   aboutUsDelete  Boolean @default(false)
+
+//   // banner permissions
+//   bannerAccess   Boolean @default(false)
+//   bannerCreate   Boolean @default(false)
+//   bannerUpdate   Boolean @default(false)
+//   bannerDelete   Boolean @default(false)
+
+//   // category permissions
+//   categoryAccess Boolean @default(false)
+//   categoryCreate Boolean @default(false)
+//   categoryUpdate Boolean @default(false)
+//   categoryDelete Boolean @default(false)
+
+//   // subCategory permissions
+//   subCategoryAccess Boolean @default(false)
+//   subCategoryCreate Boolean @default(false)
+//   subCategoryUpdate Boolean @default(false)
+//   subCategoryDelete Boolean @default(false)
+
+//   // chilsCategory permissions (kept existing name)
+//   chilsCategoryAccess Boolean @default(false)
+//   chilsCategoryCreate Boolean @default(false)
+//   chilsCategoryUpdate Boolean @default(false)
+//   chilsCategoryDelete Boolean @default(false)
+
+//   // order permissions
+//   orderAccess    Boolean @default(false)
+//   orderCreate    Boolean @default(false)
+//   orderUpdate    Boolean @default(false)
+//   orderDelete    Boolean @default(false)
+
+//   // user permissions
+//   userAccess     Boolean @default(false)
+//   userCreate     Boolean @default(false)
+//   userUpdate     Boolean @default(false)
+//   userDelete     Boolean @default(false)
+
+//   roles Role[]
+// }
+

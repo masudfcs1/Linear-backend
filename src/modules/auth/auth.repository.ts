@@ -1,0 +1,72 @@
+import prisma from "../../config/prismadatabase";
+import { PrismaClient } from "@prisma/client";
+import { AuthUserSignUpPayload } from "../../types/auth.types";
+
+export class AuthRepository {
+  private prisma = prisma;
+
+  // createCustomRoleIfNotExists = async (roleName: string, tx?: any) => {
+  //   const prismaClient: PrismaClient = tx || this.prisma;
+
+  //   // Try to find existing role first
+  //   let role = await prismaClient.role.findUnique({ where: { role: roleName } });
+  //   if (role) return role;
+
+  //     const permission = await prismaClient.permission.create({});
+  //     role = await prismaClient.role.create({ data: { role: roleName, permissionId: permission.id } });
+  //     return role;
+  // };
+
+  async createUser(payload: AuthUserSignUpPayload, tx?: any) {
+    const { name, email, password, phone } = payload;
+    if (!name || !password) {
+      const error = new Error("name and password are required");
+      (error as any).statusCode = 400;
+      throw error;
+    }
+    const userData: any = {
+      name,
+      email: email || "",
+      password,
+    };
+    if (phone) userData.phone = phone;
+    const newUser = await this.prisma.user.create({
+      data: userData,
+    });
+    return newUser;
+  }
+
+  async getUser() {
+    return await this.prisma.user.findMany();
+  }
+
+  async getUserById(id: number) {
+    return await this.prisma.user.findUnique({ where: { id } });
+  }
+
+  async updateUserPassword(userId: number, password: string) {
+    return await this.prisma.user.update({
+      where: { id: userId },
+      data: { password },
+    });
+  }
+
+  async getAuthByEmail(email: string) {
+    return await this.prisma.user.findUnique({ where: { email } });
+  }
+
+  async getAuthByEmailOrPhone(email?: string, phone?: string) {
+    if (!email && !phone) return null;
+    const orArr: any[] = [];
+    if (email) orArr.push({ email });
+    if (phone) orArr.push({ phone });
+    return await this.prisma.user.findFirst({
+      where: {
+        OR: orArr,
+      },
+    });
+  }
+}
+
+const authRepository = new AuthRepository();
+export default authRepository;

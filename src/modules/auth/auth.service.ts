@@ -1,10 +1,7 @@
-// AuthService (TypeScript version)
 import authRepository, { AuthRepository } from "./auth.repository";
 import bcrypt from "bcryptjs";
 import { generateAccessToken, generateRefreshToken } from "../../utils/jwt";
 import { NotFoundError } from "../../utils/errors";
-
-import { idGenerate } from "../../utils/IdGenerator";
 
 import { AuthUserSignUpPayload } from "../../types/auth.types";
 
@@ -35,12 +32,6 @@ export class AuthService {
         throw error;
       }
     }
-    // create Role
-    // const role = await this.repository.createCustomRoleIfNotExists(
-    //   "customer",
-    //   tx,
-    // );
-    // payload.roleId = role.id;
 
     const hashedPassword = await bcrypt.hash(String(password), 10);
     const user = await this.repository.createUser(

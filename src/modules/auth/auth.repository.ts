@@ -5,18 +5,6 @@ import { AuthUserSignUpPayload } from "../../types/auth.types";
 export class AuthRepository {
   private prisma = prisma;
 
-  // createCustomRoleIfNotExists = async (roleName: string, tx?: any) => {
-  //   const prismaClient: PrismaClient = tx || this.prisma;
-
-  //   // Try to find existing role first
-  //   let role = await prismaClient.role.findUnique({ where: { role: roleName } });
-  //   if (role) return role;
-
-  //     const permission = await prismaClient.permission.create({});
-  //     role = await prismaClient.role.create({ data: { role: roleName, permissionId: permission.id } });
-  //     return role;
-  // };
-
   async createUser(payload: AuthUserSignUpPayload, tx?: any) {
     const { name, email, password, phone } = payload;
     if (!name || !password) {
